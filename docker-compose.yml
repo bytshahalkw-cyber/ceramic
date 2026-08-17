@@ -1,0 +1,92 @@
+version: '3.8'
+
+networks:
+  ceramic-net:
+    driver: bridge
+
+services:
+  # ==========================================
+  # NODE 1 + IPFS 1
+  # ==========================================
+  ipfs1:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs_node_1
+    environment:
+      - IPFS_PATH=/data/ipfs
+    ports:
+      - "4001:4001"     # Swarm port
+      - "5001:5001"     # API port
+    volumes:
+      - ./ipfs_data_1:/data/ipfs
+    networks:
+      - ceramic-net
+
+  ceramic1:
+    image: ceramicnetwork/ceramic-node:latest
+    container_name: ceramic_node_1
+    environment:
+      - NODE_ENV=production
+      - CERAMIC_ENABLE_EXPERIMENTAL_STATS=true
+    ports:
+      - "7001:7001"
+    depends_on:
+      - ipfs1
+    networks:
+      - ceramic-net
+
+  # ==========================================
+  # NODE 2 + IPFS 2
+  # ==========================================
+  ipfs2:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs_node_2
+    environment:
+      - IPFS_PATH=/data/ipfs
+    ports:
+      - "4002:4001"
+      - "5002:5001"
+    volumes:
+      - ./ipfs_data_2:/data/ipfs
+    networks:
+      - ceramic-net
+
+  ceramic2:
+    image: ceramicnetwork/ceramic-node:latest
+    container_name: ceramic_node_2
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "7002:7001"
+    depends_on:
+      - ipfs2
+    networks:
+      - ceramic-net
+
+  # ==========================================
+  # NODE 3 + IPFS 3
+  # ==========================================
+  ipfs3:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs_node_3
+    environment:
+      - IPFS_PATH=/data/ipfs
+    ports:
+      - "4003:4001"
+      - "5003:5001"
+    volumes:
+      - ./ipfs_data_3:/data/ipfs
+    networks:
+      - ceramic-net
+
+  ceramic3:
+    image: ceramicnetwork/ceramic-node:latest
+    container_name: ceramic_node_3
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "7003:7001"
+    depends_on:
+      - ipfs3
+    networks:
+      - ceramic-net
+
